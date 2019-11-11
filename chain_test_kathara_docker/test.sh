@@ -14,11 +14,11 @@ test()
 
        python generator.py -r $i -d labs/lab_$i
        cd labs/lab_$i
-       /usr/bin/time -o time_start.txt -p $NETKIT_HOME/lstart
+       /usr/bin/time -o time_start.txt -p kathara lstart
 
-       sudo docker exec netkit_1000_server ping -c 5 10.0.0.2 > ping.txt
+       kathara connect --shell "ping -c 5 10.0.0.2" server > ping.txt
 
-       /usr/bin/time -o time_clean.txt -p $NETKIT_HOME/lclean
+       /usr/bin/time -o time_clean.txt -p kathara lclean
 
        cd ../..
     done
