@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 usage()
 {
     echo "usage: test.sh [[-r n_routers] | [-h]]"
@@ -16,7 +19,7 @@ test()
        cd labs/lab_$i
        /usr/bin/time -o time_start.txt -p kathara lstart
 
-       kathara connect --shell "ping -c 5 10.0.0.2" server > ping.txt
+       kathara connect --shell "ping -c 100 10.0.0.2" server > ping.txt
 
        /usr/bin/time -o time_clean.txt -p kathara lclean
 

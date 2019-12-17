@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 $NETKIT_HOME/kstart
 
 folder_hash=$($NETKIT_HOME/kinfo -n)

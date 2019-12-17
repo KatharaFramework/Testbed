@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 usage()
 {
     echo "usage: test.sh [[-r n_routers] | [-h]]"
@@ -19,7 +22,7 @@ test()
 
        folder_hash=$($NETKIT_HOME/kinfo -n)
        client_name=$(kubectl -n $folder_hash get pods | grep server | cut -f1 -d " ")
-       kubectl -n $folder_hash exec $client_name -- ping -c 5 10.0.0.2 > ping.txt
+       kubectl -n $folder_hash exec $client_name -- ping -c 100 10.0.0.2 > ping.txt
 
        /usr/bin/time -o time_clean.txt -p ./monitor_clean.sh
 

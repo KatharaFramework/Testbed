@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 folder_hash=$($NETKIT_HOME/kinfo -n)
 
 $NETKIT_HOME/kclean

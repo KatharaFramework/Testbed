@@ -19,11 +19,23 @@ def extract_clean_time(folder, results):
 def extract_ping_time(folder, results):
     with open("%s/ping.txt" % folder, "r") as ping_file:
         matches = re.findall("time=(.*) ", ping_file.read())
+        pings = list(map(lambda x: float(x), matches))
+
+        min_ping = min(pings)
+        max_ping = max(pings)
 
         if matches:
-            results["ping_avg"] = sum(map(lambda x: float(x), matches)) / 5
+            results["ping_avg"] = sum(pings) / len(pings)
+            results["ping_min"] = min_ping
+            results["ping_max"] = max_ping
+            results["ping_std_max"] = results["ping_avg"] + stdev(pings)
+            results["ping_std_min"] = results["ping_avg"] - stdev(pings)
         else:
             results["ping_avg"] = "None"
+            results["ping_min"] = "None"
+            results["ping_max"] = "None"
+            results["ping_std_max"] = "None"
+            results["ping_std_min"] = "None"
 
 
 def extract_results():
