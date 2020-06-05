@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-# set -x
 
 usage()
 {
@@ -10,23 +9,21 @@ usage()
 
 test()
 {
-	for (( i=1; i<=$n_routers; i++ ))
+	for (( i=1; i<=$n_devices; i++ ))
 	do
-		echo ""
-		echo "Testing lab with $i routers..."
+		echo "Testing lab with $i devices..."
 
 		mkdir -p labs/lab_$i/image
-
 		cp image/dind-kathara.tar labs/lab_$i/image/dind-kathara.tar
 		cp -r shared/ labs/lab_$i/
 
-		echo "pc1[0]=A" >> labs/lab_$i/lab.conf
-		echo "pc1[image]=kathara/dind" >> labs/lab_$i/lab.conf
+		echo "pc1[0]=\"A\"" >> labs/lab_$i/lab.conf
+		echo "pc1[image]=\"kathara/dind\"" >> labs/lab_$i/lab.conf
 
 		if [ $i -gt 1 ]
 		then
-			echo "pc2[0]=A" >> labs/lab_$i/lab.conf
-			echo "pc2[image]=kathara/dind" >> labs/lab_$i/lab.conf
+			echo "pc2[0]=\"A\"" >> labs/lab_$i/lab.conf
+			echo "pc2[image]=\"kathara/dind\"" >> labs/lab_$i/lab.conf
 		fi
 
 		currPath="labs/lab_$i/pc1/sublab"
@@ -37,35 +34,34 @@ test()
 
 			if [ $((j%2)) -eq 0 ]
 			then
-				echo "pc2[0]=A" >> $currPath/lab.conf
-				echo "pc2[image]=kathara/dind" >> $currPath/lab.conf
+				echo "pc2[0]=\"A\"" >> $currPath/lab.conf
+				echo "pc2[image]=\"kathara/dind\"" >> $currPath/lab.conf
 			else
-				echo "pc1[0]=A" >> $currPath/lab.conf
-				echo "pc1[image]=kathara/dind" >> $currPath/lab.conf
+				echo "pc1[0]=\"A\"" >> $currPath/lab.conf
+				echo "pc1[image]=\"kathara/dind\"" >> $currPath/lab.conf
 				currPath="$currPath/pc1/sublab"
 			fi
 		done
 
-
 		cd labs/lab_$i
-		/usr/bin/time -o time_start.txt -p kathara lstart --privileged
 
+		/usr/bin/time -o time_start.txt -p kathara lstart --privileged
 		/usr/bin/time -o time_clean.txt -p kathara lclean
 
 		cd ../..
+		echo ""
 	done
 
-	echo ""
 	echo "Done."
 }
 
 
-n_routers=""
+n_devices=""
 
 while [ "$1" != "" ]; do
 	case $1 in
 		-d | --devices )        shift
-								n_routers=$1
+								n_devices=$1
 								;;
 		-h | --help )           usage
 								exit
@@ -76,7 +72,7 @@ while [ "$1" != "" ]; do
 	shift
 done
 
-if [ "$n_routers" != "" ]
+if [ "$n_devices" != "" ]
 then
 	test
 else

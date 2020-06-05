@@ -42,15 +42,17 @@ def extract_ping_time(folder, results):
 def extract_results():
     results = {}
 
-    files = os.listdir(".")
+    files = os.listdir("./labs")
 
     for folder in files:
-        if os.path.isdir(folder):
+        full_path = os.path.join(".", "labs", folder)
+
+        if os.path.isdir(full_path):
             results[folder] = {}
 
-            extract_start_time(folder, results[folder])
-            extract_clean_time(folder, results[folder])
-            extract_ping_time(folder, results[folder])
+            extract_start_time(full_path, results[folder])
+            extract_clean_time(full_path, results[folder])
+            extract_ping_time(full_path, results[folder])
 
     return results
 

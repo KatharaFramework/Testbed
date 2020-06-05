@@ -1,5 +1,6 @@
 import os
 import re
+from statistics import stdev
 
 
 def extract_start_time(folder, results):
