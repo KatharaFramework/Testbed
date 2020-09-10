@@ -93,11 +93,6 @@ ENV/
 Dockerfile~
 *.py~
 
-# builds
-bin/wrapper/bin/netkit_dw
-test/shared/MARACAS_lab2/
-bin/temp/*
-
 bin/python/config
 config
 .vscode/
@@ -105,3 +100,6 @@ test/
 .vs/
 
 .idea/
+
+
+labs/

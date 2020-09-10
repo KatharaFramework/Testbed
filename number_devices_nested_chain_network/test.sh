@@ -4,7 +4,7 @@ set -e
 
 usage()
 {
-	echo "usage: test.sh [[-d n_devices] | [-h]]"
+	echo "usage: test.sh [[-d n_devices] [-n n_brothers] | [-h]]"
 }
 
 test()
@@ -17,29 +17,17 @@ test()
 		cp image/dind-kathara.tar labs/lab_$i/image/dind-kathara.tar
 		cp -r shared/ labs/lab_$i/
 
-		echo "pc1[0]=\"A\"" >> labs/lab_$i/lab.conf
-		echo "pc1[image]=\"kathara/dind\"" >> labs/lab_$i/lab.conf
+		currPath="labs/lab_$i"
 
-		if [ $i -gt 1 ]
-		then
-			echo "pc2[0]=\"A\"" >> labs/lab_$i/lab.conf
-			echo "pc2[image]=\"kathara/dind\"" >> labs/lab_$i/lab.conf
-		fi
-
-		currPath="labs/lab_$i/pc1/sublab"
-
-		for (( j=3; j<=$i; j++ ))
+		for (( j=0; j<=$(($i-1)); j++ ))
 		do
-			mkdir -p $currPath
+			echo "pc$((j%n_brothers))[0]=\"A\"" >> $currPath/lab.conf
+			echo "pc$((j%n_brothers))[image]=\"kathara/dind\"" >> $currPath/lab.conf
 
-			if [ $((j%2)) -eq 0 ]
+			if [ $(((j+1)%n_brothers)) -eq 0 ] && [ $j -gt 0 ]
 			then
-				echo "pc2[0]=\"A\"" >> $currPath/lab.conf
-				echo "pc2[image]=\"kathara/dind\"" >> $currPath/lab.conf
-			else
-				echo "pc1[0]=\"A\"" >> $currPath/lab.conf
-				echo "pc1[image]=\"kathara/dind\"" >> $currPath/lab.conf
-				currPath="$currPath/pc1/sublab"
+				currPath="$currPath/pc0/sublab"
+				mkdir -p $currPath
 			fi
 		done
 
@@ -57,12 +45,16 @@ test()
 
 
 n_devices=""
+n_brothers=2
 
 while [ "$1" != "" ]; do
 	case $1 in
 		-d | --devices )        shift
 								n_devices=$1
 								;;
+		-n | --brothers )        shift
+								n_brothers=$1
+								;;		
 		-h | --help )           usage
 								exit
 								;;
