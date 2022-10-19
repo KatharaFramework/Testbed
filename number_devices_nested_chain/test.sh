@@ -4,36 +4,59 @@ set -e
 
 usage()
 {
-	echo "usage: test.sh [[-d n_devices] | [-h]]"
+	echo "usage: test.sh [[-d depth] | [-h]]"
 }
 
 test()
 {
-	for (( i=1; i<=$n_devices; i++ ))
+	rm -Rf labs/
+
+	for (( i=1; i<=$depth; i++ ))
 	do
-		echo "Testing lab with $i devices..."
+		echo "Generating lab with depth=$i..."
 
-		mkdir -p labs/lab_$i/image
-		cp image/dind-kathara.tar labs/lab_$i/image/dind-kathara.tar
-		cp -r shared/ labs/lab_$i/
+		mkdir -p labs/lab_$i
 
-		echo "pc1[0]=\"A\"" >> labs/lab_$i/lab.conf
-		echo "pc1[image]=\"kathara/dind\"" >> labs/lab_$i/lab.conf
-
-		currPath="labs/lab_$i/pc1/sublab"
+		currPath="labs/lab_$i"
 
 		for (( j=1; j<=$i; j++ ))
-		do
+		do		
 			mkdir -p $currPath
-			echo "pc1[0]=\"A\"" >> $currPath/lab.conf
-			echo "pc1[image]=\"kathara/dind\"" >> $currPath/lab.conf
-			currPath="$currPath/pc1/sublab"
+		
+			echo "pc$j[0]=\"A\"" >> $currPath/lab.conf
+			if [ $j -ne $i ]; then
+				echo "pc$j[nested]=\"true\"" >> $currPath/lab.conf
+				echo "kathara lstart -d sublab/ --privileged" > $currPath/pc$j.startup
+			fi
+
+			currPath="$currPath/pc$j/sublab"
 		done
 
 		cd labs/lab_$i
 
-		/usr/bin/time -o time_start.txt -p kathara lstart --privileged
-		/usr/bin/time -o time_clean.txt -p kathara lclean
+		start_ts=$(date +%s)
+		kathara lstart
+		result=$(kathara linfo | grep Running | wc -l)
+		while [ "$result" -eq "0" ]
+		do
+			sleep 0.5
+			result=$(kathara linfo | grep Running | wc -l)
+		done
+		end_ts=$(date +%s)
+
+		expr $end_ts - $start_ts > time_start.txt
+
+		start_ts=$(date +%s)
+		kathara lclean
+		kathara linfo
+		while [ "$?" -eq "0" ]
+		do
+			sleep 0.5
+			kathara linfo
+		done
+		end_ts=$(date +%s)
+
+		expr $end_ts - $start_ts > time_clean.txt
 
 		cd ../..
 		echo ""
@@ -42,12 +65,12 @@ test()
 	echo "Done."
 }
 
-n_devices=""
+depth=""
 
 while [ "$1" != "" ]; do
 	case $1 in
-		-d | --devices )        shift
-								n_devices=$1
+		-d | --depth )        shift
+								depth=$1
 								;;
 		-h | --help )           usage
 								exit
@@ -58,7 +81,7 @@ while [ "$1" != "" ]; do
 	shift
 done
 
-if [ "$n_devices" != "" ]
+if [ "$depth" != "" ]
 then
 	test
 else
