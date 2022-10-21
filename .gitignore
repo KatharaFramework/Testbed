@@ -103,3 +103,5 @@ test/
 
 
 labs/
+labs_*
+*.zip
